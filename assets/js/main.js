@@ -5280,7 +5280,7 @@ var $elm$html$Html$span = _VirtualDom_node('span');
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$Main$viewInput = F7(
-	function (i, labelText, t, p, v, r, toMsg) {
+	function (i, l, t, p, v, r, toMsg) {
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -5297,7 +5297,7 @@ var $author$project$Main$viewInput = F7(
 						]),
 					_List_fromArray(
 						[
-							$elm$html$Html$text(labelText)
+							$elm$html$Html$text(l)
 						])),
 					A2(
 					$elm$html$Html$input,
@@ -5317,10 +5317,7 @@ var $author$project$Main$viewInput = F7(
 						[
 							$elm$html$Html$Attributes$class('field-info')
 						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('validation here')
-						]))
+					_List_Nil)
 				]));
 	});
 var $author$project$Main$view = function (model) {

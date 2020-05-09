@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, button, div, h1, input, text, label, form, span)
+import Html exposing (Html, button, div, h1, input, label, text, span)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 
@@ -15,8 +15,6 @@ type alias Model =
   , date: String
   , time: String
   }
-
-type alias IsRequired = Bool
 
 init : Model
 init =
@@ -51,16 +49,16 @@ view model =
     [ h1 [] [ text "Event Countdown Timer" ]
     , div [ class "event-form"]
       [ viewInput "name-input" "Event" "text" "Event Name" model.name True NameChange
-      , viewInput "date-input" "Date" "text" "Event Date" model.date True DateChange
-      , viewInput "time-input" "Time" "text" "Event Time" model.time False TimeChange
-      , button [ class "button", onClick Start ] [ text "Start" ]
+        , viewInput "date-input" "Date" "text" "Event Date" model.date True DateChange
+        , viewInput "time-input" "Time" "text" "Event Time" model.time False TimeChange
+        , button [ class "button", onClick Start ] [ text "Start" ]
     ]
   ]
 
-viewInput : String -> String -> String -> String -> String -> IsRequired -> (String -> msg) -> Html msg
-viewInput i labelText t p v r toMsg =
+viewInput : String -> String -> String -> String -> String -> Bool -> (String -> Msg) -> Html Msg
+viewInput i l t p v r toMsg =
   div [ class "form-control" ]
-    [ label [ for i ] [ text labelText ]
+    [ label [ for i ] [ text l ]
     , input [ id i, type_ t, placeholder p, value v, required r, onInput toMsg ] []
-    , span [ class "field-info" ] [ text "validation here"]
+    , span [ class "field-info" ] [ ]
     ]
