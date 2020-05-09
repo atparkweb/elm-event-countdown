@@ -4,6 +4,7 @@ import Browser
 import Html exposing (Html, button, div, h1, input, label, text, span)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
+import String exposing (isEmpty, trim)
 
 -- MAIN
 main =
@@ -43,22 +44,63 @@ update msg model =
 
 
 -- VIEW
+
+type InputStatus
+  = Required String
+  | Invalid String
+  | Valid String
+
 view : Model -> Html Msg
 view model =
   div [ class "container" ]
     [ h1 [] [ text "Event Countdown Timer" ]
     , div [ class "event-form"]
-      [ viewInput "name-input" "Event" "text" "Event Name" model.name True NameChange
-        , viewInput "date-input" "Date" "text" "Event Date" model.date True DateChange
-        , viewInput "time-input" "Time" "text" "Event Time" model.time False TimeChange
+      [ viewInput "name-input" "Event" "text" "Event Name" model.name True NameChange (validateRequired model.name)
+        , viewInput "date-input" "Date" "text" "Event Date" model.date True DateChange (validateDate model.date)
+        , viewInput "time-input" "Time" "text" "Event Time" model.time False TimeChange (validateTime model.time)
         , button [ class "button", onClick Start ] [ text "Start" ]
     ]
   ]
 
-viewInput : String -> String -> String -> String -> String -> Bool -> (String -> Msg) -> Html Msg
-viewInput i l t p v r toMsg =
+viewInput : String -> String -> String -> String -> String -> Bool -> (String -> Msg) -> Bool -> Html Msg
+viewInput i l t p v r toMsg isValid =
   div [ class "form-control" ]
     [ label [ for i ] [ text l ]
     , input [ id i, type_ t, placeholder p, value v, required r, onInput toMsg ] []
-    , span [ class "field-info" ] [ ]
+    , validationMessage isValid
     ]
+
+validateRequired : String -> Bool
+validateRequired val =
+  val
+  |> trim
+  |> isEmpty
+  |> not
+
+validateDate : String -> Bool
+validateDate val =
+  -- TODO: Use reges to validate date format
+  True
+
+validateTime : String -> Bool
+validateTime val =
+  -- TODO: Use regex to validate time format
+  True
+
+boolToString : Bool -> String
+boolToString i =
+  if i then
+    "OK"
+  else
+    "Not OK"
+
+getValidationClass : Bool -> String
+getValidationClass x =
+  if x then
+    "valid"
+  else
+    "invalid"
+
+validationMessage : Bool -> Html msg
+validationMessage isValid =
+  span [class "field-info", class (isValid |> getValidationClass) ] [ text (isValid |> boolToString) ]
