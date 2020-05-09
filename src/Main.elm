@@ -1,9 +1,9 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, button, div, input, text, label)
+import Html exposing (Html, button, div, h1, input, text, label, form, span)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onInput)
+import Html.Events exposing (onClick, onInput)
 
 -- MAIN
 main =
@@ -12,18 +12,24 @@ main =
 -- MODEL
 type alias Model =
   { name: String
-    , date: String 
+  , date: String
+  , time: String
   }
+
+type alias IsRequired = Bool
 
 init : Model
 init =
-  { name = "",
-    date = "" }
+  { name = ""
+  , date = ""
+  , time = ""}
 
 -- UPDATE
 type Msg
   = NameChange String
   | DateChange String
+  | TimeChange String
+  | Start
 
 update : Msg -> Model -> Model
 update msg model =
@@ -32,15 +38,29 @@ update msg model =
       { model | name = newName }
     DateChange newDate ->
       { model | date = newDate }
+    TimeChange newTime ->
+      { model | time = newTime }
+    Start ->
+      model
 
 
 -- VIEW
 view : Model -> Html Msg
 view model =
-  div []
-    [ label [ for "name-input" ] [ text "Event" ]
-    , input [ id "name-input", placeholder "Event Name", value model.name, onInput NameChange, class "form-control" ] []
-    , label [ for "date-input" ] [ text "Date" ]
-    , input [ id "date-input", type_ "date", value model.date, onInput DateChange, class "form-control" ] []
-    , button [] [ text "Submit" ]
+  div [ class "container" ]
+    [ h1 [] [ text "Event Countdown Timer" ]
+    , div [ class "event-form"]
+      [ viewInput "name-input" "Event" "text" "Event Name" model.name True NameChange
+      , viewInput "date-input" "Date" "text" "Event Date" model.date True DateChange
+      , viewInput "time-input" "Time" "text" "Event Time" model.time False TimeChange
+      , button [ class "button", onClick Start ] [ text "Start" ]
+    ]
+  ]
+
+viewInput : String -> String -> String -> String -> String -> IsRequired -> (String -> msg) -> Html msg
+viewInput i labelText t p v r toMsg =
+  div [ class "form-control" ]
+    [ label [ for i ] [ text labelText ]
+    , input [ id i, type_ t, placeholder p, value v, required r, onInput toMsg ] []
+    , span [ class "field-info" ] [ text "validation here"]
     ]
