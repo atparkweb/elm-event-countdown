@@ -4,6 +4,7 @@ import Browser
 import Html exposing (Html, button, div, h1, input, label, text, span)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
+import Regex
 import String exposing (isEmpty, trim)
 
 -- MAIN
@@ -56,8 +57,8 @@ view model =
     [ h1 [] [ text "Event Countdown Timer" ]
     , div [ class "event-form"]
       [ viewInput "name-input" "Event" "text" "Event Name" model.name True NameChange (validateRequired model.name)
-        , viewInput "date-input" "Date" "text" "Event Date" model.date True DateChange (validateDate model.date)
-        , viewInput "time-input" "Time" "text" "Event Time" model.time False TimeChange (validateTime model.time)
+        , viewInput "date-input" "Date" "text" "yyyy/mm/dd" model.date True DateChange (validateDate model.date)
+        , viewInput "time-input" "Time" "text" "hh:mm AM/PM" model.time False TimeChange (validateTime model.time)
         , button [ class "button", onClick Start ] [ text "Start" ]
     ]
   ]
@@ -77,15 +78,24 @@ validateRequired val =
   |> isEmpty
   |> not
 
+datePattern : Regex.Regex
+datePattern =
+  Maybe.withDefault Regex.never <|
+    Regex.fromString "\\d\\d\\d\\d(/|-)\\d\\d(/|-)\\d\\d"
+
+timePattern : Regex.Regex
+timePattern =
+  Maybe.withDefault Regex.never <|
+    Regex.fromStringWith { caseInsensitive = True, multiline = False } "(\\d\\d:\\d\\d ?((A|P)M)|^(?!.))"
+  
+
 validateDate : String -> Bool
 validateDate val =
-  -- TODO: Use reges to validate date format
-  True
+  Regex.contains datePattern val
 
 validateTime : String -> Bool
 validateTime val =
-  -- TODO: Use regex to validate time format
-  True
+  Regex.contains timePattern val
 
 boolToString : Bool -> String
 boolToString i =
