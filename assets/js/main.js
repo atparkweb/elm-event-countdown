@@ -5429,6 +5429,9 @@ var $elm$html$Html$Attributes$boolProperty = F2(
 	});
 var $elm$html$Html$Attributes$required = $elm$html$Html$Attributes$boolProperty('required');
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
+var $author$project$Main$getValidationClass = function (x) {
+	return x ? 'valid' : 'invalid';
+};
 var $elm$html$Html$span = _VirtualDom_node('span');
 var $author$project$Main$validationMessage = function (result) {
 	switch (result.$) {
@@ -5438,7 +5441,9 @@ var $author$project$Main$validationMessage = function (result) {
 				$elm$html$Html$span,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$class('field-info invalid')
+						$elm$html$Html$Attributes$class('field-info'),
+						$elm$html$Html$Attributes$class(
+						$author$project$Main$getValidationClass(false))
 					]),
 				_List_fromArray(
 					[
@@ -5450,7 +5455,9 @@ var $author$project$Main$validationMessage = function (result) {
 				$elm$html$Html$span,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$class('field-info invalid')
+						$elm$html$Html$Attributes$class('field-info'),
+						$elm$html$Html$Attributes$class(
+						$author$project$Main$getValidationClass(false))
 					]),
 				_List_fromArray(
 					[
@@ -5461,7 +5468,9 @@ var $author$project$Main$validationMessage = function (result) {
 				$elm$html$Html$span,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$class('field-info valid')
+						$elm$html$Html$Attributes$class('field-info'),
+						$elm$html$Html$Attributes$class(
+						$author$project$Main$getValidationClass(true))
 					]),
 				_List_fromArray(
 					[
@@ -5532,7 +5541,7 @@ var $author$project$Main$view = function (model) {
 					[
 						A8($author$project$Main$viewInput, 'name-input', 'Event', 'text', 'Event Name', model.name, true, $author$project$Main$NameChange, $author$project$Main$validateRequired),
 						A8($author$project$Main$viewInput, 'date-input', 'Date', 'text', 'yyyy/mm/dd', model.date, true, $author$project$Main$DateChange, $author$project$Main$validateDate),
-						A8($author$project$Main$viewInput, 'time-input', 'Time', 'text', 'hh:mm AM/PM', model.time, false, $author$project$Main$TimeChange, $author$project$Main$validateTime),
+						A8($author$project$Main$viewInput, 'time-input', 'Time (optional)', 'text', 'hh:mm AM/PM', model.time, false, $author$project$Main$TimeChange, $author$project$Main$validateTime),
 						A2(
 						$elm$html$Html$button,
 						_List_fromArray(

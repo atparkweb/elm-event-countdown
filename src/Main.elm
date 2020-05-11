@@ -58,7 +58,7 @@ view model =
     , div [ class "event-form"]
       [ viewInput "name-input" "Event" "text" "Event Name" model.name True NameChange validateRequired
         , viewInput "date-input" "Date" "text" "yyyy/mm/dd" model.date True DateChange validateDate
-        , viewInput "time-input" "Time" "text" "hh:mm AM/PM" model.time False TimeChange validateTime
+        , viewInput "time-input" "Time (optional)" "text" "hh:mm AM/PM" model.time False TimeChange validateTime
         , button [ class "button", onClick Start ] [ text "Start" ]
     ]
   ]
@@ -102,13 +102,6 @@ validateTime val =
   else
     InvalidFormat "Time is not in the correct format"
 
-boolToString : Bool -> String
-boolToString i =
-  if i then
-    "OK"
-  else
-    "Invalid"
-
 getValidationClass : Bool -> String
 getValidationClass x =
   if x then
@@ -120,8 +113,8 @@ validationMessage : InputValidationStatus -> Html msg
 validationMessage result =
   case result of
     Required msg ->
-      span [ class "field-info invalid" ] [ text msg ]
+      span [ class "field-info", class (getValidationClass False) ] [ text msg ]
     InvalidFormat msg ->
-      span [ class "field-info invalid" ] [ text msg ]
+      span [ class "field-info", class (getValidationClass False)] [ text msg ]
     Valid ->
-      span [ class "field-info valid" ] [ text "Ok" ]
+      span [ class "field-info", class (getValidationClass True) ] [ text "Ok" ]
