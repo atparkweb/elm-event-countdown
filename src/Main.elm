@@ -46,37 +46,37 @@ update msg model =
 
 -- VIEW
 
-type InputStatus
+type InputValidationStatus
   = Required String
-  | Invalid String
-  | Valid String
+  | InvalidFormat String
+  | Valid
 
 view : Model -> Html Msg
 view model =
   div [ class "container" ]
     [ h1 [] [ text "Event Countdown Timer" ]
     , div [ class "event-form"]
-      [ viewInput "name-input" "Event" "text" "Event Name" model.name True NameChange (validateRequired model.name)
-        , viewInput "date-input" "Date" "text" "yyyy/mm/dd" model.date True DateChange (validateDate model.date)
-        , viewInput "time-input" "Time" "text" "hh:mm AM/PM" model.time False TimeChange (validateTime model.time)
+      [ viewInput "name-input" "Event" "text" "Event Name" model.name True NameChange validateRequired
+        , viewInput "date-input" "Date" "text" "yyyy/mm/dd" model.date True DateChange validateDate
+        , viewInput "time-input" "Time" "text" "hh:mm AM/PM" model.time False TimeChange validateTime
         , button [ class "button", onClick Start ] [ text "Start" ]
     ]
   ]
 
-viewInput : String -> String -> String -> String -> String -> Bool -> (String -> Msg) -> Bool -> Html Msg
-viewInput i l t p v r toMsg isValid =
+viewInput : String -> String -> String -> String -> String -> Bool -> (String -> Msg) -> (String -> InputValidationStatus) -> Html Msg
+viewInput i l t p v r toMsg validationResult =
   div [ class "form-control" ]
     [ label [ for i ] [ text l ]
     , input [ id i, type_ t, placeholder p, value v, required r, onInput toMsg ] []
-    , validationMessage isValid
+    , validationMessage (validationResult v)
     ]
 
-validateRequired : String -> Bool
+validateRequired : String -> InputValidationStatus
 validateRequired val =
-  val
-  |> trim
-  |> isEmpty
-  |> not
+  if val |> trim |> isEmpty then
+    Required "This field is required"
+  else
+    Valid
 
 datePattern : Regex.Regex
 datePattern =
@@ -87,22 +87,27 @@ timePattern : Regex.Regex
 timePattern =
   Maybe.withDefault Regex.never <|
     Regex.fromStringWith { caseInsensitive = True, multiline = False } "(\\d\\d:\\d\\d ?((A|P)M)|^(?!.))"
-  
 
-validateDate : String -> Bool
+validateDate : String -> InputValidationStatus
 validateDate val =
-  Regex.contains datePattern val
+  if Regex.contains datePattern val then
+    Valid
+  else
+    InvalidFormat "Date is not in the correct format"
 
-validateTime : String -> Bool
+validateTime : String -> InputValidationStatus
 validateTime val =
-  Regex.contains timePattern val
+  if Regex.contains timePattern val then
+    Valid
+  else
+    InvalidFormat "Time is not in the correct format"
 
 boolToString : Bool -> String
 boolToString i =
   if i then
     "OK"
   else
-    "Not OK"
+    "Invalid"
 
 getValidationClass : Bool -> String
 getValidationClass x =
@@ -111,6 +116,12 @@ getValidationClass x =
   else
     "invalid"
 
-validationMessage : Bool -> Html msg
-validationMessage isValid =
-  span [class "field-info", class (isValid |> getValidationClass) ] [ text (isValid |> boolToString) ]
+validationMessage : InputValidationStatus -> Html msg
+validationMessage result =
+  case result of
+    Required msg ->
+      span [ class "field-info invalid" ] [ text msg ]
+    InvalidFormat msg ->
+      span [ class "field-info invalid" ] [ text msg ]
+    Valid ->
+      span [ class "field-info valid" ] [ text "Ok" ]

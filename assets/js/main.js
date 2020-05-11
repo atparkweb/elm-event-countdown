@@ -5330,6 +5330,10 @@ var $elm$html$Html$Events$onClick = function (msg) {
 };
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $author$project$Main$InvalidFormat = function (a) {
+	return {$: 'InvalidFormat', a: a};
+};
+var $author$project$Main$Valid = {$: 'Valid'};
 var $elm$regex$Regex$Match = F4(
 	function (match, index, number, submatches) {
 		return {index: index, match: match, number: number, submatches: submatches};
@@ -5357,13 +5361,15 @@ var $author$project$Main$datePattern = A2(
 	$elm$regex$Regex$never,
 	$elm$regex$Regex$fromString('\\d\\d\\d\\d(/|-)\\d\\d(/|-)\\d\\d'));
 var $author$project$Main$validateDate = function (val) {
-	return A2($elm$regex$Regex$contains, $author$project$Main$datePattern, val);
+	return A2($elm$regex$Regex$contains, $author$project$Main$datePattern, val) ? $author$project$Main$Valid : $author$project$Main$InvalidFormat('Date is not in the correct format');
 };
-var $elm$core$Basics$not = _Basics_not;
+var $author$project$Main$Required = function (a) {
+	return {$: 'Required', a: a};
+};
 var $elm$core$String$trim = _String_trim;
 var $author$project$Main$validateRequired = function (val) {
-	return !$elm$core$String$isEmpty(
-		$elm$core$String$trim(val));
+	return $elm$core$String$isEmpty(
+		$elm$core$String$trim(val)) ? $author$project$Main$Required('This field is required') : $author$project$Main$Valid;
 };
 var $author$project$Main$timePattern = A2(
 	$elm$core$Maybe$withDefault,
@@ -5373,7 +5379,7 @@ var $author$project$Main$timePattern = A2(
 		{caseInsensitive: true, multiline: false},
 		'(\\d\\d:\\d\\d ?((A|P)M)|^(?!.))'));
 var $author$project$Main$validateTime = function (val) {
-	return A2($elm$regex$Regex$contains, $author$project$Main$timePattern, val);
+	return A2($elm$regex$Regex$contains, $author$project$Main$timePattern, val) ? $author$project$Main$Valid : $author$project$Main$InvalidFormat('Time is not in the correct format');
 };
 var $elm$html$Html$Attributes$for = $elm$html$Html$Attributes$stringProperty('htmlFor');
 var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
@@ -5423,31 +5429,49 @@ var $elm$html$Html$Attributes$boolProperty = F2(
 	});
 var $elm$html$Html$Attributes$required = $elm$html$Html$Attributes$boolProperty('required');
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
-var $author$project$Main$boolToString = function (i) {
-	return i ? 'OK' : 'Not OK';
-};
-var $author$project$Main$getValidationClass = function (x) {
-	return x ? 'valid' : 'invalid';
-};
 var $elm$html$Html$span = _VirtualDom_node('span');
-var $author$project$Main$validationMessage = function (isValid) {
-	return A2(
-		$elm$html$Html$span,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class('field-info'),
-				$elm$html$Html$Attributes$class(
-				$author$project$Main$getValidationClass(isValid))
-			]),
-		_List_fromArray(
-			[
-				$elm$html$Html$text(
-				$author$project$Main$boolToString(isValid))
-			]));
+var $author$project$Main$validationMessage = function (result) {
+	switch (result.$) {
+		case 'Required':
+			var msg = result.a;
+			return A2(
+				$elm$html$Html$span,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('field-info invalid')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(msg)
+					]));
+		case 'InvalidFormat':
+			var msg = result.a;
+			return A2(
+				$elm$html$Html$span,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('field-info invalid')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(msg)
+					]));
+		default:
+			return A2(
+				$elm$html$Html$span,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('field-info valid')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Ok')
+					]));
+	}
 };
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$Main$viewInput = F8(
-	function (i, l, t, p, v, r, toMsg, isValid) {
+	function (i, l, t, p, v, r, toMsg, validationResult) {
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -5478,7 +5502,8 @@ var $author$project$Main$viewInput = F8(
 							$elm$html$Html$Events$onInput(toMsg)
 						]),
 					_List_Nil),
-					$author$project$Main$validationMessage(isValid)
+					$author$project$Main$validationMessage(
+					validationResult(v))
 				]));
 	});
 var $author$project$Main$view = function (model) {
@@ -5505,36 +5530,9 @@ var $author$project$Main$view = function (model) {
 					]),
 				_List_fromArray(
 					[
-						A8(
-						$author$project$Main$viewInput,
-						'name-input',
-						'Event',
-						'text',
-						'Event Name',
-						model.name,
-						true,
-						$author$project$Main$NameChange,
-						$author$project$Main$validateRequired(model.name)),
-						A8(
-						$author$project$Main$viewInput,
-						'date-input',
-						'Date',
-						'text',
-						'yyyy/mm/dd',
-						model.date,
-						true,
-						$author$project$Main$DateChange,
-						$author$project$Main$validateDate(model.date)),
-						A8(
-						$author$project$Main$viewInput,
-						'time-input',
-						'Time',
-						'text',
-						'hh:mm AM/PM',
-						model.time,
-						false,
-						$author$project$Main$TimeChange,
-						$author$project$Main$validateTime(model.time)),
+						A8($author$project$Main$viewInput, 'name-input', 'Event', 'text', 'Event Name', model.name, true, $author$project$Main$NameChange, $author$project$Main$validateRequired),
+						A8($author$project$Main$viewInput, 'date-input', 'Date', 'text', 'yyyy/mm/dd', model.date, true, $author$project$Main$DateChange, $author$project$Main$validateDate),
+						A8($author$project$Main$viewInput, 'time-input', 'Time', 'text', 'hh:mm AM/PM', model.time, false, $author$project$Main$TimeChange, $author$project$Main$validateTime),
 						A2(
 						$elm$html$Html$button,
 						_List_fromArray(
