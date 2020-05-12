@@ -4456,7 +4456,8 @@ var _Regex_splitAtMost = F3(function(n, re, str)
 });
 
 var _Regex_infinity = Infinity;
-var $author$project$Main$init = {date: '', name: '', time: ''};
+var $elm$core$Basics$False = {$: 'False'};
+var $author$project$Main$init = {date: '', name: '', started: false, time: '', valid: false};
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
@@ -4558,7 +4559,6 @@ var $elm$core$Result$Ok = function (a) {
 var $elm$json$Json$Decode$OneOf = function (a) {
 	return {$: 'OneOf', a: a};
 };
-var $elm$core$Basics$False = {$: 'False'};
 var $elm$core$Basics$add = _Basics_add;
 var $elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
@@ -5285,21 +5285,16 @@ var $author$project$Main$update = F2(
 				return _Utils_update(
 					model,
 					{time: newTime});
+			case 'Start':
+				return _Utils_update(
+					model,
+					{started: true});
 			default:
-				return model;
+				return _Utils_update(
+					model,
+					{started: false});
 		}
 	});
-var $author$project$Main$DateChange = function (a) {
-	return {$: 'DateChange', a: a};
-};
-var $author$project$Main$NameChange = function (a) {
-	return {$: 'NameChange', a: a};
-};
-var $author$project$Main$Start = {$: 'Start'};
-var $author$project$Main$TimeChange = function (a) {
-	return {$: 'TimeChange', a: a};
-};
-var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
@@ -5311,6 +5306,14 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $author$project$Main$Stop = {$: 'Stop'};
+var $elm$html$Html$button = _VirtualDom_node('button');
+var $author$project$Main$countdownTimer = function (model) {
+	return model.date;
+};
+var $elm$html$Html$h2 = _VirtualDom_node('h2');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -5328,10 +5331,64 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $author$project$Main$InvalidFormat = function (a) {
-	return {$: 'InvalidFormat', a: a};
+var $author$project$Main$eventCountdown = function (model) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('event-countdown inner-content')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$h2,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						$author$project$Main$countdownTimer(model))
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('until ' + model.name)
+					])),
+				A2(
+				$elm$html$Html$button,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('button'),
+						$elm$html$Html$Events$onClick($author$project$Main$Stop)
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Clear')
+					]))
+			]));
+};
+var $author$project$Main$DateChange = function (a) {
+	return {$: 'DateChange', a: a};
+};
+var $author$project$Main$NameChange = function (a) {
+	return {$: 'NameChange', a: a};
+};
+var $author$project$Main$Start = {$: 'Start'};
+var $author$project$Main$TimeChange = function (a) {
+	return {$: 'TimeChange', a: a};
+};
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $elm$html$Html$Attributes$boolProperty = F2(
+	function (key, bool) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$bool(bool));
+	});
+var $elm$html$Html$Attributes$disabled = $elm$html$Html$Attributes$boolProperty('disabled');
+var $author$project$Main$Invalid = function (a) {
+	return {$: 'Invalid', a: a};
 };
 var $author$project$Main$Valid = {$: 'Valid'};
 var $elm$regex$Regex$Match = F4(
@@ -5361,15 +5418,12 @@ var $author$project$Main$datePattern = A2(
 	$elm$regex$Regex$never,
 	$elm$regex$Regex$fromString('\\d\\d\\d\\d(/|-)\\d\\d(/|-)\\d\\d'));
 var $author$project$Main$validateDate = function (val) {
-	return A2($elm$regex$Regex$contains, $author$project$Main$datePattern, val) ? $author$project$Main$Valid : $author$project$Main$InvalidFormat('Date is not in the correct format');
-};
-var $author$project$Main$Required = function (a) {
-	return {$: 'Required', a: a};
+	return A2($elm$regex$Regex$contains, $author$project$Main$datePattern, val) ? $author$project$Main$Valid : $author$project$Main$Invalid('Date is not in the correct format');
 };
 var $elm$core$String$trim = _String_trim;
 var $author$project$Main$validateRequired = function (val) {
 	return $elm$core$String$isEmpty(
-		$elm$core$String$trim(val)) ? $author$project$Main$Required('This field is required') : $author$project$Main$Valid;
+		$elm$core$String$trim(val)) ? $author$project$Main$Invalid('This field is required') : $author$project$Main$Valid;
 };
 var $author$project$Main$timePattern = A2(
 	$elm$core$Maybe$withDefault,
@@ -5379,7 +5433,7 @@ var $author$project$Main$timePattern = A2(
 		{caseInsensitive: true, multiline: false},
 		'(\\d\\d:\\d\\d ?((A|P)M)|^(?!.))'));
 var $author$project$Main$validateTime = function (val) {
-	return A2($elm$regex$Regex$contains, $author$project$Main$timePattern, val) ? $author$project$Main$Valid : $author$project$Main$InvalidFormat('Time is not in the correct format');
+	return A2($elm$regex$Regex$contains, $author$project$Main$timePattern, val) ? $author$project$Main$Valid : $author$project$Main$Invalid('Time is not in the correct format');
 };
 var $elm$html$Html$Attributes$for = $elm$html$Html$Attributes$stringProperty('htmlFor');
 var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
@@ -5419,63 +5473,38 @@ var $elm$html$Html$Events$onInput = function (tagger) {
 			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
 };
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
-var $elm$json$Json$Encode$bool = _Json_wrap;
-var $elm$html$Html$Attributes$boolProperty = F2(
-	function (key, bool) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$bool(bool));
-	});
 var $elm$html$Html$Attributes$required = $elm$html$Html$Attributes$boolProperty('required');
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $author$project$Main$getValidationClass = function (x) {
 	return x ? 'valid' : 'invalid';
 };
 var $elm$html$Html$span = _VirtualDom_node('span');
+var $author$project$Main$spanWithClass = F2(
+	function (className, content) {
+		return A2(
+			$elm$html$Html$span,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('field-info'),
+					$elm$html$Html$Attributes$class(className)
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text(content)
+				]));
+	});
 var $author$project$Main$validationMessage = function (result) {
-	switch (result.$) {
-		case 'Required':
-			var msg = result.a;
-			return A2(
-				$elm$html$Html$span,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('field-info'),
-						$elm$html$Html$Attributes$class(
-						$author$project$Main$getValidationClass(false))
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text(msg)
-					]));
-		case 'InvalidFormat':
-			var msg = result.a;
-			return A2(
-				$elm$html$Html$span,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('field-info'),
-						$elm$html$Html$Attributes$class(
-						$author$project$Main$getValidationClass(false))
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text(msg)
-					]));
-		default:
-			return A2(
-				$elm$html$Html$span,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('field-info'),
-						$elm$html$Html$Attributes$class(
-						$author$project$Main$getValidationClass(true))
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Ok')
-					]));
+	if (result.$ === 'Invalid') {
+		var msg = result.a;
+		return A2(
+			$author$project$Main$spanWithClass,
+			$author$project$Main$getValidationClass(false),
+			msg);
+	} else {
+		return A2(
+			$author$project$Main$spanWithClass,
+			$author$project$Main$getValidationClass(true),
+			'Ok');
 	}
 };
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
@@ -5515,6 +5544,35 @@ var $author$project$Main$viewInput = F8(
 					validationResult(v))
 				]));
 	});
+var $author$project$Main$eventForm = function (model) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('event-form inner-content')
+			]),
+		_List_fromArray(
+			[
+				A8($author$project$Main$viewInput, 'name-input', 'Event', 'text', 'Event Name', model.name, true, $author$project$Main$NameChange, $author$project$Main$validateRequired),
+				A8($author$project$Main$viewInput, 'date-input', 'Date', 'text', 'yyyy/mm/dd', model.date, true, $author$project$Main$DateChange, $author$project$Main$validateDate),
+				A8($author$project$Main$viewInput, 'time-input', 'Time (optional)', 'text', 'hh:mm AM/PM', model.time, false, $author$project$Main$TimeChange, $author$project$Main$validateTime),
+				A2(
+				$elm$html$Html$button,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('button'),
+						$elm$html$Html$Events$onClick($author$project$Main$Start),
+						$elm$html$Html$Attributes$disabled(model.started)
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Start')
+					]))
+			]));
+};
+var $author$project$Main$viewContent = function (model) {
+	return model.started ? $author$project$Main$eventCountdown(model) : $author$project$Main$eventForm(model);
+};
 var $author$project$Main$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
@@ -5531,29 +5589,7 @@ var $author$project$Main$view = function (model) {
 					[
 						$elm$html$Html$text('Event Countdown Timer')
 					])),
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('event-form')
-					]),
-				_List_fromArray(
-					[
-						A8($author$project$Main$viewInput, 'name-input', 'Event', 'text', 'Event Name', model.name, true, $author$project$Main$NameChange, $author$project$Main$validateRequired),
-						A8($author$project$Main$viewInput, 'date-input', 'Date', 'text', 'yyyy/mm/dd', model.date, true, $author$project$Main$DateChange, $author$project$Main$validateDate),
-						A8($author$project$Main$viewInput, 'time-input', 'Time (optional)', 'text', 'hh:mm AM/PM', model.time, false, $author$project$Main$TimeChange, $author$project$Main$validateTime),
-						A2(
-						$elm$html$Html$button,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class('button'),
-								$elm$html$Html$Events$onClick($author$project$Main$Start)
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Start')
-							]))
-					]))
+				$author$project$Main$viewContent(model)
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$sandbox(

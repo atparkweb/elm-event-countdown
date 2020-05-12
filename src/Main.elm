@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, button, div, h1, input, label, text, span)
+import Html exposing (Html, button, div, h1, h2, input, label, text, span)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Regex
@@ -16,13 +16,17 @@ type alias Model =
   { name: String
   , date: String
   , time: String
+  , started: Bool
+  , valid: Bool
   }
 
 init : Model
 init =
   { name = ""
   , date = ""
-  , time = ""}
+  , time = ""
+  , started = False
+  , valid = False }
 
 -- UPDATE
 type Msg
@@ -30,6 +34,7 @@ type Msg
   | DateChange String
   | TimeChange String
   | Start
+  | Stop
 
 update : Msg -> Model -> Model
 update msg model =
@@ -41,27 +46,51 @@ update msg model =
     TimeChange newTime ->
       { model | time = newTime }
     Start ->
-      model
+      { model | started = True }
+    Stop ->
+      { model | started = False }
 
 
 -- VIEW
 
 type InputValidationStatus
-  = Required String
-  | InvalidFormat String
+  = Invalid String
   | Valid
 
 view : Model -> Html Msg
 view model =
   div [ class "container" ]
     [ h1 [] [ text "Event Countdown Timer" ]
-    , div [ class "event-form"]
-      [ viewInput "name-input" "Event" "text" "Event Name" model.name True NameChange validateRequired
-        , viewInput "date-input" "Date" "text" "yyyy/mm/dd" model.date True DateChange validateDate
-        , viewInput "time-input" "Time (optional)" "text" "hh:mm AM/PM" model.time False TimeChange validateTime
-        , button [ class "button", onClick Start ] [ text "Start" ]
+    , viewContent model
     ]
-  ]
+
+viewContent : Model -> Html Msg
+viewContent model =
+  if model.started then
+    eventCountdown model
+  else
+    eventForm model
+
+eventForm : Model -> Html Msg
+eventForm model =
+  div [ class "event-form inner-content"]
+        [ viewInput "name-input" "Event" "text" "Event Name" model.name True NameChange validateRequired
+          , viewInput "date-input" "Date" "text" "yyyy/mm/dd" model.date True DateChange validateDate
+          , viewInput "time-input" "Time (optional)" "text" "hh:mm AM/PM" model.time False TimeChange validateTime
+          , button [ class "button", onClick Start, disabled model.started ] [ text "Start" ]
+        ]
+
+eventCountdown : Model -> Html Msg
+eventCountdown model =
+  div [ class "event-countdown inner-content" ]
+    [ h2 [] [ text (countdownTimer model) ]
+    , div [] [ text ("until " ++ model.name) ]
+    , button [ class "button", onClick Stop ] [ text "Clear" ]
+    ]
+
+countdownTimer : Model -> String
+countdownTimer model =
+  model.date
 
 viewInput : String -> String -> String -> String -> String -> Bool -> (String -> Msg) -> (String -> InputValidationStatus) -> Html Msg
 viewInput i l t p v r toMsg validationResult =
@@ -74,7 +103,7 @@ viewInput i l t p v r toMsg validationResult =
 validateRequired : String -> InputValidationStatus
 validateRequired val =
   if val |> trim |> isEmpty then
-    Required "This field is required"
+    Invalid "This field is required"
   else
     Valid
 
@@ -93,14 +122,14 @@ validateDate val =
   if Regex.contains datePattern val then
     Valid
   else
-    InvalidFormat "Date is not in the correct format"
+    Invalid "Date is not in the correct format"
 
 validateTime : String -> InputValidationStatus
 validateTime val =
   if Regex.contains timePattern val then
     Valid
   else
-    InvalidFormat "Time is not in the correct format"
+    Invalid "Time is not in the correct format"
 
 getValidationClass : Bool -> String
 getValidationClass x =
@@ -109,12 +138,14 @@ getValidationClass x =
   else
     "invalid"
 
-validationMessage : InputValidationStatus -> Html msg
+validationMessage : InputValidationStatus -> Html Msg
 validationMessage result =
   case result of
-    Required msg ->
-      span [ class "field-info", class (getValidationClass False) ] [ text msg ]
-    InvalidFormat msg ->
-      span [ class "field-info", class (getValidationClass False)] [ text msg ]
+    Invalid msg ->
+      spanWithClass (getValidationClass False) msg
     Valid ->
-      span [ class "field-info", class (getValidationClass True) ] [ text "Ok" ]
+      spanWithClass (getValidationClass True) "Ok" 
+
+spanWithClass : String -> String -> Html Msg
+spanWithClass className content =
+  span [ class "field-info", class className ] [ text content ]
