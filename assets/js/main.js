@@ -4457,7 +4457,21 @@ var _Regex_splitAtMost = F3(function(n, re, str)
 
 var _Regex_infinity = Infinity;
 var $elm$core$Basics$False = {$: 'False'};
-var $author$project$Main$init = {date: '', name: '', started: false, time: '', valid: false};
+var $elm$core$Basics$identity = function (x) {
+	return x;
+};
+var $elm$time$Time$Posix = function (a) {
+	return {$: 'Posix', a: a};
+};
+var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
+var $author$project$Main$init = {
+	eventDate: '',
+	eventName: '',
+	eventTime: '',
+	started: false,
+	time: $elm$time$Time$millisToPosix(0),
+	valid: false
+};
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
@@ -4953,9 +4967,6 @@ var $elm$browser$Browser$External = function (a) {
 var $elm$browser$Browser$Internal = function (a) {
 	return {$: 'Internal', a: a};
 };
-var $elm$core$Basics$identity = function (x) {
-	return x;
-};
 var $elm$browser$Browser$Dom$NotFound = function (a) {
 	return {$: 'NotFound', a: a};
 };
@@ -5274,25 +5285,30 @@ var $author$project$Main$update = F2(
 				var newName = msg.a;
 				return _Utils_update(
 					model,
-					{name: newName});
+					{eventName: newName});
 			case 'DateChange':
 				var newDate = msg.a;
 				return _Utils_update(
 					model,
-					{date: newDate});
+					{eventDate: newDate});
 			case 'TimeChange':
 				var newTime = msg.a;
 				return _Utils_update(
 					model,
-					{time: newTime});
+					{eventTime: newTime});
 			case 'Start':
 				return _Utils_update(
 					model,
 					{started: true});
-			default:
+			case 'Stop':
 				return _Utils_update(
 					model,
 					{started: false});
+			default:
+				var newTime = msg.a;
+				return _Utils_update(
+					model,
+					{time: newTime});
 		}
 	});
 var $elm$json$Json$Encode$string = _Json_wrap;
@@ -5311,7 +5327,7 @@ var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Main$Stop = {$: 'Stop'};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $author$project$Main$countdownTimer = function (model) {
-	return model.date;
+	return model.eventDate;
 };
 var $elm$html$Html$h2 = _VirtualDom_node('h2');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
@@ -5353,7 +5369,7 @@ var $author$project$Main$eventCountdown = function (model) {
 				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$text('until ' + model.name)
+						$elm$html$Html$text('until ' + model.eventName)
 					])),
 				A2(
 				$elm$html$Html$button,
@@ -5553,9 +5569,9 @@ var $author$project$Main$eventForm = function (model) {
 			]),
 		_List_fromArray(
 			[
-				A8($author$project$Main$viewInput, 'name-input', 'Event', 'text', 'Event Name', model.name, true, $author$project$Main$NameChange, $author$project$Main$validateRequired),
-				A8($author$project$Main$viewInput, 'date-input', 'Date', 'text', 'yyyy/mm/dd', model.date, true, $author$project$Main$DateChange, $author$project$Main$validateDate),
-				A8($author$project$Main$viewInput, 'time-input', 'Time (optional)', 'text', 'hh:mm AM/PM', model.time, false, $author$project$Main$TimeChange, $author$project$Main$validateTime),
+				A8($author$project$Main$viewInput, 'name-input', 'Event', 'text', 'Event Name', model.eventName, true, $author$project$Main$NameChange, $author$project$Main$validateRequired),
+				A8($author$project$Main$viewInput, 'date-input', 'Date', 'text', 'yyyy/mm/dd', model.eventDate, true, $author$project$Main$DateChange, $author$project$Main$validateDate),
+				A8($author$project$Main$viewInput, 'time-input', 'Time (optional)', 'text', 'hh:mm AM/PM', model.eventTime, false, $author$project$Main$TimeChange, $author$project$Main$validateTime),
 				A2(
 				$elm$html$Html$button,
 				_List_fromArray(

@@ -6,6 +6,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Regex
 import String exposing (isEmpty, trim)
+import Time
 
 -- MAIN
 main =
@@ -13,20 +14,23 @@ main =
 
 -- MODEL
 type alias Model =
-  { name: String
-  , date: String
-  , time: String
+  { eventName: String
+  , eventDate: String
+  , eventTime: String
   , started: Bool
   , valid: Bool
+  , time: Time.Posix
   }
 
 init : Model
 init =
-  { name = ""
-  , date = ""
-  , time = ""
+  { eventName = ""
+  , eventDate = ""
+  , eventTime = ""
   , started = False
-  , valid = False }
+  , valid = False
+  , time = Time.millisToPosix 0
+  }
 
 -- UPDATE
 type Msg
@@ -35,20 +39,23 @@ type Msg
   | TimeChange String
   | Start
   | Stop
+  | Tick Time.Posix
 
 update : Msg -> Model -> Model
 update msg model =
   case msg of
     NameChange newName ->
-      { model | name = newName }
+      { model | eventName = newName }
     DateChange newDate ->
-      { model | date = newDate }
+      { model | eventDate = newDate }
     TimeChange newTime ->
-      { model | time = newTime }
+      { model | eventTime = newTime }
     Start ->
       { model | started = True }
     Stop ->
       { model | started = False }
+    Tick newTime ->
+      { model | time = newTime }
 
 
 -- VIEW
@@ -74,9 +81,9 @@ viewContent model =
 eventForm : Model -> Html Msg
 eventForm model =
   div [ class "event-form inner-content"]
-        [ viewInput "name-input" "Event" "text" "Event Name" model.name True NameChange validateRequired
-          , viewInput "date-input" "Date" "text" "yyyy/mm/dd" model.date True DateChange validateDate
-          , viewInput "time-input" "Time (optional)" "text" "hh:mm AM/PM" model.time False TimeChange validateTime
+        [ viewInput "name-input" "Event" "text" "Event Name" model.eventName True NameChange validateRequired
+          , viewInput "date-input" "Date" "text" "yyyy/mm/dd" model.eventDate True DateChange validateDate
+          , viewInput "time-input" "Time (optional)" "text" "hh:mm AM/PM" model.eventTime False TimeChange validateTime
           , button [ class "button", onClick Start, disabled model.started ] [ text "Start" ]
         ]
 
@@ -84,13 +91,13 @@ eventCountdown : Model -> Html Msg
 eventCountdown model =
   div [ class "event-countdown inner-content" ]
     [ h2 [] [ text (countdownTimer model) ]
-    , div [] [ text ("until " ++ model.name) ]
+    , div [] [ text ("until " ++ model.eventName) ]
     , button [ class "button", onClick Stop ] [ text "Clear" ]
     ]
 
 countdownTimer : Model -> String
 countdownTimer model =
-  model.date
+  model.eventDate
 
 viewInput : String -> String -> String -> String -> String -> Bool -> (String -> Msg) -> (String -> InputValidationStatus) -> Html Msg
 viewInput i l t p v r toMsg validationResult =
