@@ -10,7 +10,12 @@ import Time
 
 -- MAIN
 main =
-  Browser.sandbox { init = init, update = update, view = view }
+  Browser.element
+    { init = init
+    , update = update
+    , view = view
+    , subscriptions = subscriptions
+    }
 
 -- MODEL
 type alias Model =
@@ -22,15 +27,16 @@ type alias Model =
   , time: Time.Posix
   }
 
-init : Model
-init =
-  { eventName = ""
-  , eventDate = ""
-  , eventTime = ""
-  , started = False
-  , valid = False
-  , time = Time.millisToPosix 0
-  }
+init : () -> (Model, Cmd Msg)
+init _ =
+  ({ eventName = ""
+    , eventDate = ""
+    , eventTime = ""
+    , started = False
+    , valid = False
+    , time = Time.millisToPosix 0
+    }
+  , Cmd.none)
 
 -- UPDATE
 type Msg
@@ -41,21 +47,36 @@ type Msg
   | Stop
   | Tick Time.Posix
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     NameChange newName ->
-      { model | eventName = newName }
+      ({ model | eventName = newName }
+      , Cmd.none)
     DateChange newDate ->
-      { model | eventDate = newDate }
+      ({ model | eventDate = newDate }
+      , Cmd.none)
     TimeChange newTime ->
-      { model | eventTime = newTime }
+      ({ model | eventTime = newTime }
+      , Cmd.none)
     Start ->
-      { model | started = True }
+      ({ model | started = True }
+      , Cmd.none)
     Stop ->
-      { model | started = False }
+      ({ model | started = False }
+      , Cmd.none)
     Tick newTime ->
-      { model | time = newTime }
+      ({ model | time = newTime }
+      , Cmd.none)
+
+-- SUBSCRIPTIONS
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+  if model.started then
+    Time.every 1000 Tick
+  else
+    Sub.none
 
 
 -- VIEW
@@ -97,7 +118,7 @@ eventCountdown model =
 
 countdownTimer : Model -> String
 countdownTimer model =
-  model.eventDate
+  "0 days, 0 hours, 0 minutes, 0 seconds"
 
 viewInput : String -> String -> String -> String -> String -> Bool -> (String -> Msg) -> (String -> InputValidationStatus) -> Html Msg
 viewInput i l t p v r toMsg validationResult =
