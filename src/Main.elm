@@ -17,6 +17,14 @@ main =
     , subscriptions = subscriptions
     }
 
+type alias Countdown =
+  {
+    seconds: Int
+    , minutes: Int
+    , hours: Int
+    , days: Int
+  }
+
 -- MODEL
 type alias Model =
   { eventName: String
@@ -24,7 +32,7 @@ type alias Model =
   , eventTime: String
   , started: Bool
   , valid: Bool
-  , time: Time.Posix
+  , time: String
   }
 
 init : () -> (Model, Cmd Msg)
@@ -34,7 +42,7 @@ init _ =
     , eventTime = ""
     , started = False
     , valid = False
-    , time = Time.millisToPosix 0
+    , time = ""
     }
   , Cmd.none)
 
@@ -45,7 +53,7 @@ type Msg
   | TimeChange String
   | Start
   | Stop
-  | Tick Time.Posix
+  | Tick String
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -69,18 +77,17 @@ update msg model =
       ({ model | time = newTime }
       , Cmd.none)
 
--- SUBSCRIPTIONS
-
+-- SUBSCRIPTIONSS
 subscriptions : Model -> Sub Msg
 subscriptions model =
   if model.started then
-    Time.every 1000 Tick
+    -- Time.every 1000
+    Sub.none
   else
     Sub.none
 
 
 -- VIEW
-
 type InputValidationStatus
   = Invalid String
   | Valid
@@ -108,17 +115,19 @@ eventForm model =
           , button [ class "button", onClick Start, disabled model.started ] [ text "Start" ]
         ]
 
+countdownString : Countdown -> String
+countdownString countdown =
+  List.map String.fromInt [countdown.seconds, countdown.minutes, countdown.hours, countdown.days]
+    |> List.map2 (++) [" seconds ", " minutes ", " hours ", " days "]
+    |> List.foldr (++) ""
+
 eventCountdown : Model -> Html Msg
 eventCountdown model =
   div [ class "event-countdown inner-content" ]
-    [ h2 [] [ text (countdownTimer model) ]
+    [ h2 [] [ text "00:00:00" ]
     , div [] [ text ("until " ++ model.eventName) ]
     , button [ class "button", onClick Stop ] [ text "Clear" ]
     ]
-
-countdownTimer : Model -> String
-countdownTimer model =
-  "0 days, 0 hours, 0 minutes, 0 seconds"
 
 viewInput : String -> String -> String -> String -> String -> Bool -> (String -> Msg) -> (String -> InputValidationStatus) -> Html Msg
 viewInput i l t p v r toMsg validationResult =
