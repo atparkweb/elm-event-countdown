@@ -7,7 +7,9 @@ programming example for students.
 
 ## Technologies
 
-* Elm
+* [Elm](https://elm-lang.org)
+* [TailWindCSS](https://tailwindcss.com)
+* [Yarn](https://yarnpkg.com)
 
 ## User Stories
 * User can see an event input box containing an event name field, an date field, an optional time, and a ‘Start’ button.
