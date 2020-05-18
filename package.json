@@ -10,9 +10,14 @@
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "global": "^4.4.0",
+    "tailwindcss": "^1.4.6"
+  },
   "devDependencies": {
     "elm-live": "^4.0.2",
-    "postcss-loader": "^3.0.0"
+    "postcss-loader": "^3.0.0",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11"
   }
 }
