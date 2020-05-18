@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {},
   "devDependencies": {
-    "elm-live": "^4.0.2"
+    "elm-live": "^4.0.2",
+    "postcss-loader": "^3.0.0"
   }
 }
