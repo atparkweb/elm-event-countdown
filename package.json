@@ -11,5 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "elm-live": "^4.0.2"
+  }
 }
