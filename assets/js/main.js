@@ -5287,18 +5287,11 @@ var $author$project$Main$update = F2(
 						model,
 						{started: true}),
 					$elm$core$Platform$Cmd$none);
-			case 'Stop':
+			default:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{started: false}),
-					$elm$core$Platform$Cmd$none);
-			default:
-				var newTime = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{time: newTime}),
 					$elm$core$Platform$Cmd$none);
 		}
 	});
@@ -5393,7 +5386,9 @@ var $elm$html$Html$Attributes$disabled = $elm$html$Html$Attributes$boolProperty(
 var $author$project$Main$Invalid = function (a) {
 	return {$: 'Invalid', a: a};
 };
-var $author$project$Main$Valid = {$: 'Valid'};
+var $author$project$Main$Valid = function (a) {
+	return {$: 'Valid', a: a};
+};
 var $elm$regex$Regex$Match = F4(
 	function (match, index, number, submatches) {
 		return {index: index, match: match, number: number, submatches: submatches};
@@ -5421,12 +5416,12 @@ var $author$project$Main$datePattern = A2(
 	$elm$regex$Regex$never,
 	$elm$regex$Regex$fromString('\\d\\d\\d\\d(/|-)\\d\\d(/|-)\\d\\d'));
 var $author$project$Main$validateDate = function (val) {
-	return A2($elm$regex$Regex$contains, $author$project$Main$datePattern, val) ? $author$project$Main$Valid : $author$project$Main$Invalid('Date is not in the correct format');
+	return A2($elm$regex$Regex$contains, $author$project$Main$datePattern, val) ? $author$project$Main$Valid(val) : $author$project$Main$Invalid('Date is not in the correct format');
 };
 var $elm$core$String$trim = _String_trim;
 var $author$project$Main$validateRequired = function (val) {
 	return $elm$core$String$isEmpty(
-		$elm$core$String$trim(val)) ? $author$project$Main$Invalid('This field is required') : $author$project$Main$Valid;
+		$elm$core$String$trim(val)) ? $author$project$Main$Invalid('This field is required') : $author$project$Main$Valid(val);
 };
 var $author$project$Main$timePattern = A2(
 	$elm$core$Maybe$withDefault,
@@ -5434,9 +5429,9 @@ var $author$project$Main$timePattern = A2(
 	A2(
 		$elm$regex$Regex$fromStringWith,
 		{caseInsensitive: true, multiline: false},
-		'(\\d\\d:\\d\\d ?((A|P)M)|^(?!.))'));
+		'(\\d\\d:\\d\\d ?|^(?!.))'));
 var $author$project$Main$validateTime = function (val) {
-	return A2($elm$regex$Regex$contains, $author$project$Main$timePattern, val) ? $author$project$Main$Valid : $author$project$Main$Invalid('Time is not in the correct format');
+	return A2($elm$regex$Regex$contains, $author$project$Main$timePattern, val) ? $author$project$Main$Valid(val) : $author$project$Main$Invalid('Time is not in the correct format (e.g. hh:mm) ');
 };
 var $elm$html$Html$Attributes$for = $elm$html$Html$Attributes$stringProperty('htmlFor');
 var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
@@ -5557,8 +5552,8 @@ var $author$project$Main$eventForm = function (model) {
 		_List_fromArray(
 			[
 				A8($author$project$Main$viewInput, 'name-input', 'Event', 'text', 'Event Name', model.eventName, true, $author$project$Main$NameChange, $author$project$Main$validateRequired),
-				A8($author$project$Main$viewInput, 'date-input', 'Date', 'text', 'yyyy/mm/dd', model.eventDate, true, $author$project$Main$DateChange, $author$project$Main$validateDate),
-				A8($author$project$Main$viewInput, 'time-input', 'Time (optional)', 'text', 'hh:mm AM/PM', model.eventTime, false, $author$project$Main$TimeChange, $author$project$Main$validateTime),
+				A8($author$project$Main$viewInput, 'date-input', 'Date', 'date', 'yyyy/mm/dd', model.eventDate, true, $author$project$Main$DateChange, $author$project$Main$validateDate),
+				A8($author$project$Main$viewInput, 'time-input', 'Time (optional)', 'time', '', model.eventTime, false, $author$project$Main$TimeChange, $author$project$Main$validateTime),
 				A2(
 				$elm$html$Html$button,
 				_List_fromArray(

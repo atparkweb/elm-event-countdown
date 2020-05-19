@@ -6,7 +6,6 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Regex
 import String exposing (isEmpty, trim)
-import Time
 
 -- MAIN
 main =
@@ -53,7 +52,6 @@ type Msg
   | TimeChange String
   | Start
   | Stop
-  | Tick String
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -73,9 +71,6 @@ update msg model =
     Stop ->
       ({ model | started = False }
       , Cmd.none)
-    Tick newTime ->
-      ({ model | time = newTime }
-      , Cmd.none)
 
 -- SUBSCRIPTIONSS
 subscriptions : Model -> Sub Msg
@@ -90,7 +85,7 @@ subscriptions model =
 -- VIEW
 type InputValidationStatus
   = Invalid String
-  | Valid
+  | Valid String
 
 view : Model -> Html Msg
 view model =
@@ -110,16 +105,10 @@ eventForm : Model -> Html Msg
 eventForm model =
   div [ class "event-form inner-content"]
         [ viewInput "name-input" "Event" "text" "Event Name" model.eventName True NameChange validateRequired
-          , viewInput "date-input" "Date" "text" "yyyy/mm/dd" model.eventDate True DateChange validateDate
-          , viewInput "time-input" "Time (optional)" "text" "hh:mm AM/PM" model.eventTime False TimeChange validateTime
+          , viewInput "date-input" "Date" "date" "yyyy/mm/dd" model.eventDate True DateChange validateDate
+          , viewInput "time-input" "Time (optional)" "time" "" model.eventTime False TimeChange validateTime
           , button [ class "button", onClick Start, disabled model.started ] [ text "Start" ]
         ]
-
-countdownString : Countdown -> String
-countdownString countdown =
-  List.map String.fromInt [countdown.seconds, countdown.minutes, countdown.hours, countdown.days]
-    |> List.map2 (++) [" seconds ", " minutes ", " hours ", " days "]
-    |> List.foldr (++) ""
 
 eventCountdown : Model -> Html Msg
 eventCountdown model =
@@ -142,7 +131,7 @@ validateRequired val =
   if val |> trim |> isEmpty then
     Invalid "This field is required"
   else
-    Valid
+    Valid val
 
 datePattern : Regex.Regex
 datePattern =
@@ -152,21 +141,21 @@ datePattern =
 timePattern : Regex.Regex
 timePattern =
   Maybe.withDefault Regex.never <|
-    Regex.fromStringWith { caseInsensitive = True, multiline = False } "(\\d\\d:\\d\\d ?((A|P)M)|^(?!.))"
+    Regex.fromStringWith { caseInsensitive = True, multiline = False } "(\\d\\d:\\d\\d ?|^(?!.))"
 
 validateDate : String -> InputValidationStatus
 validateDate val =
   if Regex.contains datePattern val then
-    Valid
+    Valid val
   else
     Invalid "Date is not in the correct format"
 
 validateTime : String -> InputValidationStatus
 validateTime val =
   if Regex.contains timePattern val then
-    Valid
+    Valid val
   else
-    Invalid "Time is not in the correct format"
+    Invalid "Time is not in the correct format (e.g. hh:mm) "
 
 getValidationClass : Bool -> String
 getValidationClass x =
@@ -180,8 +169,8 @@ validationMessage result =
   case result of
     Invalid msg ->
       spanWithClass (getValidationClass False) msg
-    Valid ->
-      spanWithClass (getValidationClass True) "Ok" 
+    Valid _ ->
+      spanWithClass (getValidationClass True) "Ok"
 
 spanWithClass : String -> String -> Html Msg
 spanWithClass className content =
