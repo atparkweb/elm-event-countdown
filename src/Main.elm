@@ -4,11 +4,11 @@ import Browser
 import Html exposing (Html, button, div, h1, h2, input, label, text, span)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
-import Iso8601
 import Regex
 import String exposing (isEmpty, trim)
 import Task
 import Time exposing (Month(..))
+import Utc
 
 -- MAIN
 main =
@@ -81,14 +81,36 @@ update msg model =
       ({ model | event = updateEventZone newZone model.event }
       , Cmd.none)
     Start ->
-      ({ model | started = True }
+      (startEvent model
       , Cmd.none)
     Stop ->
       ({ model | started = False }
       , Cmd.none)
     Tick newTime ->
-      ({ model | time = (calculateRemainingTime newTime model) }
+      ({ model | time = calculateRemainingTime newTime model }
       , Cmd.none)
+
+eventInputToTime : Model -> Time.Posix
+eventInputToTime model =
+    case Utc.toTime (utcString model.dateInput model.timeInput) of
+      Ok time ->
+        time
+      Err _ ->
+        Time.millisToPosix 0
+
+utcString : String -> String -> String
+utcString date time =
+  String.join "" [date, time]
+
+startEvent : Model -> Model
+startEvent model =
+  { model | event = updateEventName model.nameInput model.event, started = True }
+
+saveEventTime : Model -> Model
+saveEventTime model =
+  let eventTime = eventInputToTime model in
+    { model | event = updateEventTime eventTime model.event }
+
 
 updateEventName : String -> Event -> Event
 updateEventName newName oldEvent =
@@ -118,10 +140,6 @@ subscriptions model =
 
 
 -- VIEW
-type InputValidationStatus
-  = Invalid String
-  | Valid
-
 view : Model -> Html Msg
 view model =
   div [ class "container" ]
@@ -190,6 +208,10 @@ viewCountdown model =
 countdownTimer : Model -> String
 countdownTimer model =
   "00:00:00:00"
+
+type InputValidationStatus
+  = Invalid String
+  | Valid
 
 viewInput : String -> String -> String -> String -> String -> Bool -> (String -> Msg) -> (String -> InputValidationStatus) -> Html Msg
 viewInput i l t p v r toMsg validationResult =

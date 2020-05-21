@@ -5742,6 +5742,20 @@ var $author$project$Main$calculateRemainingTime = F2(
 	});
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Main$updateEventName = F2(
+	function (newName, oldEvent) {
+		return _Utils_update(
+			oldEvent,
+			{name: newName});
+	});
+var $author$project$Main$startEvent = function (model) {
+	return _Utils_update(
+		model,
+		{
+			event: A2($author$project$Main$updateEventName, model.nameInput, model.event),
+			started: true
+		});
+};
 var $author$project$Main$updateEventZone = F2(
 	function (newZone, oldEvent) {
 		return _Utils_update(
@@ -5787,9 +5801,7 @@ var $author$project$Main$update = F2(
 					$elm$core$Platform$Cmd$none);
 			case 'Start':
 				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{started: true}),
+					$author$project$Main$startEvent(model),
 					$elm$core$Platform$Cmd$none);
 			case 'Stop':
 				return _Utils_Tuple2(
