@@ -5314,12 +5314,16 @@ var $elm$time$Time$utc = A2($elm$time$Time$Zone, 0, _List_Nil);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
 		{
-			eventDate: '',
-			eventName: '',
-			eventTime: '',
+			dateInput: '',
+			event: {
+				name: '',
+				time: $elm$time$Time$millisToPosix(0),
+				timezone: $elm$time$Time$utc
+			},
+			nameInput: '',
 			started: false,
 			time: $elm$time$Time$millisToPosix(0),
-			timezone: $elm$time$Time$utc,
+			timeInput: '',
 			valid: false
 		},
 		A2($elm$core$Task$perform, $author$project$Main$SetTimezone, $elm$time$Time$here));
@@ -5738,6 +5742,12 @@ var $author$project$Main$calculateRemainingTime = F2(
 	});
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Main$updateEventZone = F2(
+	function (newZone, oldEvent) {
+		return _Utils_update(
+			oldEvent,
+			{timezone: newZone});
+	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -5746,28 +5756,34 @@ var $author$project$Main$update = F2(
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{eventName: newName}),
+						{nameInput: newName}),
 					$elm$core$Platform$Cmd$none);
 			case 'DateChange':
 				var newDate = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{eventDate: newDate}),
+						{dateInput: newDate}),
 					$elm$core$Platform$Cmd$none);
 			case 'TimeChange':
 				var newTime = msg.a;
-				return _Utils_Tuple2(
+				return $elm$core$String$isEmpty(newTime) ? _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{eventTime: newTime}),
+						{timeInput: '00:00'}),
+					$elm$core$Platform$Cmd$none) : _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{timeInput: newTime}),
 					$elm$core$Platform$Cmd$none);
 			case 'SetTimezone':
 				var newZone = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{timezone: newZone}),
+						{
+							event: A2($author$project$Main$updateEventZone, newZone, model.event)
+						}),
 					$elm$core$Platform$Cmd$none);
 			case 'Start':
 				return _Utils_Tuple2(
@@ -5850,7 +5866,7 @@ var $author$project$Main$viewCountdown = function (model) {
 				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$text('until ' + model.eventName)
+						$elm$html$Html$text('until ' + model.event.name)
 					])),
 				A2(
 				$elm$html$Html$button,
@@ -6050,9 +6066,9 @@ var $author$project$Main$viewForm = function (model) {
 			]),
 		_List_fromArray(
 			[
-				A8($author$project$Main$viewInput, 'name-input', 'Event', 'text', 'Event Name', model.eventName, true, $author$project$Main$NameChange, $author$project$Main$validateRequired),
-				A8($author$project$Main$viewInput, 'date-input', 'Date', 'date', 'yyyy/mm/dd', model.eventDate, true, $author$project$Main$DateChange, $author$project$Main$validateDate),
-				A8($author$project$Main$viewInput, 'time-input', 'Time (optional)', 'time', '', model.eventTime, false, $author$project$Main$TimeChange, $author$project$Main$validateTime),
+				A8($author$project$Main$viewInput, 'name-input', 'Event', 'text', 'Event Name', model.nameInput, true, $author$project$Main$NameChange, $author$project$Main$validateRequired),
+				A8($author$project$Main$viewInput, 'date-input', 'Date', 'date', 'yyyy/mm/dd', model.dateInput, true, $author$project$Main$DateChange, $author$project$Main$validateDate),
+				A8($author$project$Main$viewInput, 'time-input', 'Time (optional)', 'time', '', model.timeInput, false, $author$project$Main$TimeChange, $author$project$Main$validateTime),
 				A2(
 				$elm$html$Html$button,
 				_List_fromArray(

@@ -139,9 +139,9 @@ viewContent model =
 viewForm : Model -> Html Msg
 viewForm model =
   div [ class "event-form inner-content"]
-        [ viewInput "name-input" "Event" "text" "Event Name" model.event.name True NameChange validateRequired
-          , viewInput "date-input" "Date" "date" "yyyy/mm/dd" (dateString model.event.timezone model.event.time) True DateChange validateDate
-          , viewInput "time-input" "Time (optional)" "time" "" (timeString model.event.timezone model.event.time) False TimeChange validateTime
+        [ viewInput "name-input" "Event" "text" "Event Name" model.nameInput True NameChange validateRequired
+          , viewInput "date-input" "Date" "date" "yyyy/mm/dd" model.dateInput True DateChange validateDate
+          , viewInput "time-input" "Time (optional)" "time" "" model.timeInput False TimeChange validateTime
           , button [ class "button", onClick Start, disabled model.started ] [ text "Start" ]
         ]
 
