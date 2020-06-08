@@ -28,12 +28,12 @@ type alias Model =
   , timeInput: String
   , started: Bool
   , valid: Bool
-  , time: Time.Posix
+  , time: Int
   }
 
 type alias Event =
   { name: String
-  , time: Time.Posix
+  , time: Int
   , timezone: Time.Zone
   }
 
@@ -41,7 +41,7 @@ init : () -> (Model, Cmd Msg)
 init _ =
   ({ event =
      { name = ""
-     , time = Time.millisToPosix 0
+     , time = 0
      , timezone = Time.utc
      }
    , nameInput = ""
@@ -49,7 +49,7 @@ init _ =
    , timeInput = ""
    , started = False
    , valid = False
-   , time = Time.millisToPosix 0
+   , time = 0
    }
   , Task.perform SetTimezone Time.here)
 
@@ -87,16 +87,16 @@ update msg model =
       ({ model | started = False }
       , Cmd.none)
     Tick newTime ->
-      ({ model | time = calculateRemainingTime newTime model }
+      ({ model | time = calculateRemainingTime (Time.posixToMillis newTime) model.event.time }
       , Cmd.none)
 
-eventInputToTime : Model -> Time.Posix
+eventInputToTime : Model -> Int
 eventInputToTime model =
     case Utc.toTime (utcString model.dateInput model.timeInput) of
       Ok time ->
-        time
+        Time.posixToMillis time
       Err _ ->
-        Time.millisToPosix 0
+        0
 
 utcString : String -> String -> String
 utcString date time =
@@ -116,7 +116,7 @@ updateEventName : String -> Event -> Event
 updateEventName newName oldEvent =
   { oldEvent | name = newName }
 
-updateEventTime : Time.Posix -> Event -> Event
+updateEventTime : Int -> Event -> Event
 updateEventTime newTime oldEvent =
   { oldEvent | time = newTime}
 
@@ -124,11 +124,9 @@ updateEventZone : Time.Zone -> Event -> Event
 updateEventZone newZone oldEvent =
   { oldEvent | timezone = newZone }
 
-calculateRemainingTime : Time.Posix -> Model -> Time.Posix
-calculateRemainingTime currentTime model =
-  -- Caculate time left to event
-  currentTime
-
+calculateRemainingTime : Int -> Int -> Int
+calculateRemainingTime currentTime eventTime =
+  eventTime - currentTime
 
 -- SUBSCRIPTIONSS
 subscriptions : Model -> Sub Msg
@@ -200,14 +198,31 @@ timeString zone time =
 viewCountdown : Model -> Html Msg
 viewCountdown model =
   div [ class "event-countdown inner-content" ]
-    [ h2 [] [ text (countdownTimer model) ]
+    [ h2 [] [ text (countdownTimer model.time) ]
     , div [] [ text ("until " ++ model.event.name) ]
     , button [ class "button", onClick Stop ] [ text "Clear" ]
     ]
 
-countdownTimer : Model -> String
-countdownTimer model =
-  "00:00:00:00"
+countdownTimer : Int -> String
+countdownTimer time =
+  [millisToHours time, millisToMinutes time, millisToSeconds time]
+  |> List.map String.fromInt
+  |> String.join ":"
+
+millisToSeconds : Int -> Int
+millisToSeconds ms =
+  let m = toFloat ms in
+    modBy 60 (floor (m / 1000))
+
+millisToMinutes : Int -> Int
+millisToMinutes ms =
+  let m = toFloat ms in
+    modBy 60 (floor (m / (1000 * 60)))
+
+millisToHours : Int -> Int
+millisToHours ms =
+  let m = toFloat ms in
+    modBy 24 (floor (m / (1000 * 60 * 60)))
 
 type InputValidationStatus
   = Invalid String

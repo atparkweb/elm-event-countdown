@@ -5306,23 +5306,15 @@ var $elm$time$Time$Zone = F2(
 	});
 var $elm$time$Time$customZone = $elm$time$Time$Zone;
 var $elm$time$Time$here = _Time_here(_Utils_Tuple0);
-var $elm$time$Time$Posix = function (a) {
-	return {$: 'Posix', a: a};
-};
-var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
 var $elm$time$Time$utc = A2($elm$time$Time$Zone, 0, _List_Nil);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
 		{
 			dateInput: '',
-			event: {
-				name: '',
-				time: $elm$time$Time$millisToPosix(0),
-				timezone: $elm$time$Time$utc
-			},
+			event: {name: '', time: 0, timezone: $elm$time$Time$utc},
 			nameInput: '',
 			started: false,
-			time: $elm$time$Time$millisToPosix(0),
+			time: 0,
 			timeInput: '',
 			valid: false
 		},
@@ -5682,6 +5674,10 @@ var $elm$time$Time$onEffects = F3(
 				},
 				killTask));
 	});
+var $elm$time$Time$Posix = function (a) {
+	return {$: 'Posix', a: a};
+};
+var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
 var $elm$time$Time$now = _Time_now($elm$time$Time$millisToPosix);
 var $elm$time$Time$onSelfMsg = F3(
 	function (router, interval, state) {
@@ -5737,11 +5733,15 @@ var $author$project$Main$subscriptions = function (model) {
 	return model.started ? A2($elm$time$Time$every, 1000, $author$project$Main$Tick) : $elm$core$Platform$Sub$none;
 };
 var $author$project$Main$calculateRemainingTime = F2(
-	function (currentTime, model) {
-		return currentTime;
+	function (currentTime, eventTime) {
+		return eventTime - currentTime;
 	});
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $elm$time$Time$posixToMillis = function (_v0) {
+	var millis = _v0.a;
+	return millis;
+};
 var $author$project$Main$updateEventName = F2(
 	function (newName, oldEvent) {
 		return _Utils_update(
@@ -5815,7 +5815,10 @@ var $author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{
-							time: A2($author$project$Main$calculateRemainingTime, newTime, model)
+							time: A2(
+								$author$project$Main$calculateRemainingTime,
+								$elm$time$Time$posixToMillis(newTime),
+								model.event.time)
 						}),
 					$elm$core$Platform$Cmd$none);
 		}
@@ -5835,8 +5838,41 @@ var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Main$Stop = {$: 'Stop'};
 var $elm$html$Html$button = _VirtualDom_node('button');
-var $author$project$Main$countdownTimer = function (model) {
-	return '00:00:00:00';
+var $elm$core$Basics$modBy = _Basics_modBy;
+var $author$project$Main$millisToHours = function (ms) {
+	var m = ms;
+	return A2(
+		$elm$core$Basics$modBy,
+		24,
+		$elm$core$Basics$floor(m / ((1000 * 60) * 60)));
+};
+var $author$project$Main$millisToMinutes = function (ms) {
+	var m = ms;
+	return A2(
+		$elm$core$Basics$modBy,
+		60,
+		$elm$core$Basics$floor(m / (1000 * 60)));
+};
+var $author$project$Main$millisToSeconds = function (ms) {
+	var m = ms;
+	return A2(
+		$elm$core$Basics$modBy,
+		60,
+		$elm$core$Basics$floor(m / 1000));
+};
+var $author$project$Main$countdownTimer = function (time) {
+	return A2(
+		$elm$core$String$join,
+		':',
+		A2(
+			$elm$core$List$map,
+			$elm$core$String$fromInt,
+			_List_fromArray(
+				[
+					$author$project$Main$millisToHours(time),
+					$author$project$Main$millisToMinutes(time),
+					$author$project$Main$millisToSeconds(time)
+				])));
 };
 var $elm$html$Html$h2 = _VirtualDom_node('h2');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
@@ -5871,7 +5907,7 @@ var $author$project$Main$viewCountdown = function (model) {
 				_List_fromArray(
 					[
 						$elm$html$Html$text(
-						$author$project$Main$countdownTimer(model))
+						$author$project$Main$countdownTimer(model.time))
 					])),
 				A2(
 				$elm$html$Html$div,
